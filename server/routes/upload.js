@@ -1,19 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 import crypto from 'crypto';
+import { config } from '../config/index.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+fs.mkdirSync(config.uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
+  destination: (req, file, cb) => cb(null, config.uploadsDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     const nombre = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
@@ -40,9 +35,7 @@ router.post('/', upload.single('imagen'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No se recibió archivo' });
   }
-
-  const url = `/uploads/${req.file.filename}`;
-  res.json({ success: true, url });
+  res.json({ success: true, url: `/uploads/${req.file.filename}` });
 });
 
 export default router;

@@ -1,0 +1,47 @@
+# Blueprint de Render para HablaChat
+# Uso: sub este repositorio en Render > New > Blueprint, o:
+#   render blueprint launch
+#
+# Nota sobre el plan: un disco persistente requiere plan de pago (starter).
+# El plan free tiene filesystem efimero, por lo que SQLite se reiniciaria
+# en cada deploy. Si necesitas el plan gratuito, cambia DB_PATH a una URL de
+# Postgres externo y adapta db/connection.js.
+
+services:
+  - type: web
+    name: hablachat-server
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+
+      # Origen del frontend en Vercel. Render lo rellena al desplegar.
+      - key: CLIENT_ORIGIN
+        sync: false
+
+      # Imagenes subidas: debe apuntar al disco persistente
+      - key: UPLOADS_DIR
+        value: /var/data/uploads
+
+      - key: DB_PATH
+        value: /var/data/hablachat.db
+
+      - key: MAX_MESSAGE_LENGTH
+        value: "1000"
+
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "1000"
+
+      - key: RATE_LIMIT_MAX_MESSAGES
+        value: "5"
+
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1

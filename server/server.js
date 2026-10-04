@@ -2,16 +2,12 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { config } from './config/index.js';
 import { runMigrations } from './db/migrations.js';
 import salasRouter from './routes/salas.js';
 import healthRouter from './routes/health.js';
 import uploadRouter from './routes/upload.js';
 import { registrarChat } from './sockets/chat.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const httpServer = createServer(app);
@@ -26,7 +22,7 @@ const io = new Server(httpServer, {
 app.use(cors({ origin: config.clientOrigin }));
 app.use(express.json({ limit: '10kb' }));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(config.uploadsDir));
 app.use('/api/upload', uploadRouter);
 app.use('/api/salas', salasRouter);
 app.use('/health', healthRouter);
@@ -56,3 +52,15 @@ registrarChat(io);
 httpServer.listen(config.port, () => {
   console.log(`[server] HablaChat corriendo en http://localhost:${config.port}`);
 });
+
+// En Render/Railway el proceso recibe SIGTERM al desplegar. Sin este manejo
+// las imagenes pendientes y el WAL de SQLite se pierden.
+for (const señal of ['SIGTERM', 'SIGINT']) {
+  process.on(señal, () => {
+    console.log(`[server] ${señal} recibido, cerrando...`);
+    io.close(() => {
+      httpServer.close(() => process.exit(0));
+    });
+    setTimeout(() => process.exit(0), 5000).unref();
+  });
+}
