@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-base: 26 27 30;
+  --color-surface: 36 38 43;
+  --color-elevated: 46 49 56;
+  --color-accent: 232 93 74;
+  --color-accent-hover: 240 107 88;
+  --color-text-primary: 240 237 232;
+  --color-text-secondary: 155 154 149;
+  --color-border: 58 61 68;
+  --color-success: 74 222 128;
+  --color-warning: 251 191 36;
+  --color-error: 248 113 113;
+}
+
+.light {
+  --color-base: 250 249 247;
+  --color-surface: 255 255 255;
+  --color-elevated: 240 237 232;
+  --color-accent: 217 74 56;
+  --color-accent-hover: 190 60 45;
+  --color-text-primary: 26 27 30;
+  --color-text-secondary: 107 106 101;
+  --color-border: 229 227 222;
+  --color-success: 22 163 74;
+  --color-warning: 217 119 6;
+  --color-error: 220 38 38;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-base text-primary font-body antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+}
+
+@layer components {
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-base;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
