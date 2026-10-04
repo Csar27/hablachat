@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { formatearHora } from '../utils/format.js';
-import { colorParaNombre, iniciales } from '../utils/avatar.js';
 import { urlAbsoluta } from '../services/api.js';
+import { useSettings } from '../context/SettingsContext.jsx';
+import Avatar from './Avatar.jsx';
 
 export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema }) {
+  const { avatar } = useSettings();
   const [falloCarga, setFalloCarga] = useState(false);
 
   if (esSistema) {
@@ -23,18 +25,14 @@ export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema 
     : 'bg-surface text-primary rounded-2xl rounded-bl-md border border-border';
 
   return (
-    <div className={`flex ${alineacion} ${mostrarAutor ? 'mt-4' : 'mt-0.5'}`}>
-      <div className={`max-w-[75%] sm:max-w-[65%] ${esMio ? 'items-end' : 'items-start'} flex flex-col`}>
+    <div className={`flex ${alineacion} gap-2 ${mostrarAutor ? 'mt-4' : 'mt-0.5'}`}>
+      {mostrarAutor && !esMio && (
+        <Avatar nombre={mensaje.autor} tam="sm" className="mt-5" />
+      )}
+
+      <div className={`max-w-[75%] sm:max-w-[65%] flex flex-col ${esMio ? 'items-end' : 'items-start'}`}>
         {mostrarAutor && !esMio && (
-          <div className="flex items-center gap-2 mb-1 ml-1">
-            <div
-              className={`w-6 h-6 rounded-full ${colorParaNombre(mensaje.autor)} flex items-center justify-center text-white text-xs font-semibold shrink-0`}
-              aria-hidden="true"
-            >
-              {iniciales(mensaje.autor)}
-            </div>
-            <span className="text-xs font-medium text-secondary">{mensaje.autor}</span>
-          </div>
+          <span className="text-xs font-medium text-secondary mb-1 ml-1">{mensaje.autor}</span>
         )}
 
         <div className={`${burbuja} overflow-hidden max-w-full`}>
@@ -65,6 +63,8 @@ export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema 
           {formatearHora(mensaje.creado_en)}
         </span>
       </div>
+
+      {mostrarAutor && esMio && <Avatar nombre={mensaje.autor} imagen={avatar} tam="sm" className="mt-5" />}
     </div>
   );
 }

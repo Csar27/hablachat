@@ -1,31 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Monitor } from 'lucide-react';
+import { useSettings } from '../context/SettingsContext.jsx';
+
+const CICLO = { oscuro: 'claro', claro: 'sistema', sistema: 'oscuro' };
+const ICONOS = { oscuro: Moon, claro: Sun, sistema: Monitor };
+const ETIQUETAS = { oscuro: 'Tema oscuro', claro: 'Tema claro', sistema: 'Tema del sistema' };
 
 export default function ThemeToggle() {
-  const [oscuro, setOscuro] = useState(() => {
-    const guardado = localStorage.getItem('hablachat-theme');
-    return guardado ? guardado === 'dark' : true;
-  });
+  const { tema, cambiarTema } = useSettings();
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (oscuro) {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    }
-    localStorage.setItem('hablachat-theme', oscuro ? 'dark' : 'light');
-  }, [oscuro]);
+  const siguiente = CICLO[tema] ?? 'oscuro';
+  const Icono = ICONOS[tema] ?? Moon;
+  const etiqueta = ETIQUETAS[tema] ?? 'Tema';
 
   return (
     <button
-      onClick={() => setOscuro(!oscuro)}
-      aria-label={oscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+      onClick={() => cambiarTema(siguiente)}
+      aria-label={`${etiqueta}. Cambiar a tema ${siguiente}`}
+      title={etiqueta}
       className="p-2 rounded-lg hover:bg-elevated text-secondary hover:text-primary transition-colors focus-ring"
     >
-      {oscuro ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+      <Icono size={18} aria-hidden="true" />
     </button>
   );
 }

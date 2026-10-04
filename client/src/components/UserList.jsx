@@ -1,9 +1,11 @@
 import { useChat } from '../context/ChatContext.jsx';
-import { colorParaNombre, iniciales } from '../utils/avatar.js';
+import { useSettings } from '../context/SettingsContext.jsx';
+import Avatar from './Avatar.jsx';
 import { Users } from 'lucide-react';
 
 export default function UserList() {
   const { usuarios, usuario } = useChat();
+  const { avatar } = useSettings();
 
   return (
     <div className="p-3">
@@ -19,15 +21,12 @@ export default function UserList() {
             key={u}
             className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-elevated transition-colors"
           >
-            <div className="relative">
-              <div
-                className={`w-8 h-8 rounded-full ${colorParaNombre(u)} flex items-center justify-center text-white text-xs font-semibold`}
-                aria-hidden="true"
-              >
-                {iniciales(u)}
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface" />
-            </div>
+            <Avatar
+              nombre={u}
+              imagen={u === usuario ? avatar : ''}
+              tam="sm"
+              conEstado
+            />
             <span className="text-sm text-primary truncate">
               {u}
               {u === usuario && <span className="text-secondary ml-1">(tú)</span>}

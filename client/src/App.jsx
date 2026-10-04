@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ChatProvider } from './context/ChatContext.jsx';
+import { SettingsProvider } from './context/SettingsContext.jsx';
 
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
 const ChatPage = lazy(() => import('./pages/ChatPage.jsx'));
@@ -15,16 +16,18 @@ function Loading() {
 
 export default function App() {
   return (
-    <ChatProvider>
-      <BrowserRouter>
-        <Suspense fallback={<Loading />}>
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </ChatProvider>
+    <SettingsProvider>
+      <ChatProvider>
+        <BrowserRouter>
+          <Suspense fallback={<Loading />}>
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </ChatProvider>
+    </SettingsProvider>
   );
 }
