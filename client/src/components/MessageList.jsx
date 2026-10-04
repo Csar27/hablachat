@@ -1,14 +1,42 @@
+import { useState, useMemo, useCallback } from 'react';
+import { MessageSquare, ArrowDown } from 'lucide-react';
 import { useChat } from '../context/ChatContext.jsx';
 import { useAutoScroll } from '../hooks/useAutoScroll.js';
 import MessageBubble from './MessageBubble.jsx';
+import ImageLightbox from './ImageLightbox.jsx';
 import { formatearFecha, esMismaFecha } from '../utils/format.js';
-import { MessageSquare, ArrowDown } from 'lucide-react';
+import { urlAbsoluta } from '../services/api.js';
 
 export default function MessageList() {
   const { mensajes, usuario, cargandoHistorial, escribiendo } = useChat();
   const { containerRef, handleScroll, scrollAlFinal, lejosDelFinal } = useAutoScroll([
     mensajes.length,
   ]);
+
+  const [imagenAbierta, setImagenAbierta] = useState(null);
+
+  const imagenes = useMemo(
+    () =>
+      mensajes
+        .filter((m) => !m.sistema && m.imagen_url)
+        .map((m) => ({
+          url: urlAbsoluta(m.imagen_url),
+          autor: m.autor,
+          contenido: m.contenido,
+        })),
+    [mensajes]
+  );
+
+  const indiceDeImagen = useCallback(
+    (mensaje) => {
+      const i = mensajes.findIndex((m) => m.id === mensaje.id);
+      return mensajes.slice(0, i).filter((m) => !m.sistema && m.imagen_url).length;
+    },
+    [mensajes]
+  );
+
+  const cerrar = useCallback(() => setImagenAbierta(null), []);
+  const cambiar = useCallback((i) => setImagenAbierta(i), []);
 
   if (cargandoHistorial) {
     return (
@@ -64,6 +92,10 @@ export default function MessageList() {
                 esMio={mensaje.autor === usuario}
                 mostrarAutor={mostrarAutor}
                 esSistema={mensaje.sistema}
+                indiceImagen={
+                  !mensaje.sistema && mensaje.imagen_url ? indiceDeImagen(mensaje) : null
+                }
+                onAbrirImagen={setImagenAbierta}
               />
             </div>
           );
@@ -84,6 +116,15 @@ export default function MessageList() {
         >
           <ArrowDown size={16} aria-hidden="true" />
         </button>
+      )}
+
+      {imagenAbierta !== null && imagenes[imagenAbierta] && (
+        <ImageLightbox
+          imagenes={imagenes}
+          indice={imagenAbierta}
+          onCerrar={cerrar}
+          onCambiar={cambiar}
+        />
       )}
     </div>
   );

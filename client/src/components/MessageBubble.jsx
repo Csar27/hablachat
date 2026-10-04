@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { ZoomIn } from 'lucide-react';
 import { formatearHora } from '../utils/format.js';
 import { urlAbsoluta } from '../services/api.js';
 import { useSettings } from '../context/SettingsContext.jsx';
 import Avatar from './Avatar.jsx';
 
-export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema }) {
+export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema, onAbrirImagen, indiceImagen }) {
   const { avatar } = useSettings();
   const [falloCarga, setFalloCarga] = useState(false);
 
@@ -26,9 +27,7 @@ export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema 
 
   return (
     <div className={`flex ${alineacion} gap-2 ${mostrarAutor ? 'mt-4' : 'mt-0.5'}`}>
-      {mostrarAutor && !esMio && (
-        <Avatar nombre={mensaje.autor} tam="sm" className="mt-5" />
-      )}
+      {mostrarAutor && !esMio && <Avatar nombre={mensaje.autor} tam="sm" className="mt-5" />}
 
       <div className={`max-w-[75%] sm:max-w-[65%] flex flex-col ${esMio ? 'items-end' : 'items-start'}`}>
         {mostrarAutor && !esMio && (
@@ -37,13 +36,29 @@ export default function MessageBubble({ mensaje, esMio, mostrarAutor, esSistema 
 
         <div className={`${burbuja} overflow-hidden max-w-full`}>
           {imagen && !falloCarga && (
-            <img
-              src={imagen}
-              alt="Imagen adjunta"
-              onError={() => setFalloCarga(true)}
-              className="block h-auto w-auto max-w-full max-h-72"
-              loading="lazy"
-            />
+            <button
+              type="button"
+              onClick={() => indiceImagen != null && onAbrirImagen?.(indiceImagen)}
+              disabled={indiceImagen == null}
+              aria-label="Ampliar imagen"
+              className="group relative block cursor-zoom-in disabled:cursor-default focus-ring"
+            >
+              <img
+                src={imagen}
+                alt="Imagen adjunta"
+                onError={() => setFalloCarga(true)}
+                className="block h-auto w-auto max-w-full max-h-72"
+                loading="lazy"
+              />
+              {indiceImagen != null && (
+                <span
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-hidden="true"
+                >
+                  <ZoomIn size={28} className="text-white" />
+                </span>
+              )}
+            </button>
           )}
 
           {imagen && falloCarga && (
